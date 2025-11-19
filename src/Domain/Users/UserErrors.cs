@@ -77,6 +77,13 @@ public static class UserErrors
         );
     }
 
+    public static Error CannotBlockSelf(string userId) =>
+       new("User.CannotBlockSelf", "You cannot block yourself.", Error.Type.Domain);
 
+    public static Error AlreadyBlocked(string userId) =>
+        new("User.AlreadyBlocked", $"User {userId} is already blocked.", Error.Type.Domain);
+
+    public static Error NotBlocked(string userId) =>
+        new("User.NotBlocked", $"User {userId} is not blocked.", Error.Type.Domain);
 
 }

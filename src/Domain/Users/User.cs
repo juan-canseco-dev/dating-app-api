@@ -2,6 +2,7 @@
 using DatingApp.Domain.Interests;
 using DatingApp.Domain.Orientations;
 using DatingApp.Domain.Users.Events;
+using System.Linq;
 
 namespace DatingApp.Domain.Users;
 
@@ -13,6 +14,7 @@ public class User : Entity<string>
     private readonly List<Orientation> _orientations = new();
     private readonly List<string> _photoUrls = new();
     private readonly List<UserFlag> _flags = new();
+    private readonly List<UserBlock> _blockedUsers = new();
 
     private User()
     {
@@ -61,7 +63,9 @@ public class User : Entity<string>
     public IReadOnlyCollection<Orientation> Orientations => _orientations.AsReadOnly();
     public IReadOnlyCollection<string> PhotoUrls => _photoUrls.AsReadOnly();
     public IReadOnlyCollection<UserFlag> Flags => _flags.AsReadOnly();
+    public IReadOnlyCollection<UserBlock> BlockedUsers => _blockedUsers.AsReadOnly();
     public virtual Gender? Gender { get; }
+
     public virtual LookingFor? LookingFor { get; }
     public DateTime CreatedAt { get; }
     public bool Confirmed { get; }
@@ -231,6 +235,41 @@ public class User : Entity<string>
         RaiseDomainEvent(new UserReactivationDomainEvent(Id!));
 
         return Result.Success();
-
     }
+
+    public Result BlockUser(string blockedUserId, DateTime blockedAt)
+    {
+        if (blockedUserId == Id)
+        {
+            return Result.Failure(UserErrors.CannotBlockSelf(Id!));
+        }
+
+        if (_blockedUsers.Any(m => m.BlockedUserId == blockedUserId))
+        {
+            return Result.Failure(UserErrors.AlreadyBlocked(blockedUserId));
+        }
+
+        _blockedUsers.Add(new UserBlock(blockedUserId, blockedAt));
+        RaiseDomainEvent(new UserBlockedDomainEvent(Id!, blockedUserId));
+
+        return Result.Success();
+    }
+
+    public Result UnblockUser(string blockedUserId)
+    {
+
+        var blockedUser = _blockedUsers.FirstOrDefault(m => m.BlockedUserId == blockedUserId);
+
+        if (blockedUser == null)
+        {
+            return Result.Failure(UserErrors.NotBlocked(blockedUserId));
+        }
+
+        _blockedUsers.Remove(blockedUser);
+        RaiseDomainEvent(new UserUnblockedDomainEvent(Id!, blockedUserId));
+
+        return Result.Success();
+    }
+
+
 }
