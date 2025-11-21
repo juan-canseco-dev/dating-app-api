@@ -1,11 +1,16 @@
 using DatingApp.Domain.Abstractions;
+using DatingApp.Domain.Swipes.Events;
 using DatingApp.Domain.Users;
 
 namespace DatingApp.Domain.Swipes;
 
 public class Swipe : Entity<string> {
 
-    private Swipe() {}
+    private Swipe() 
+    {
+        FromUserId = default!;
+        ToUserId = default!;
+    }
 
     private Swipe(string fromUserId, string toUserId, SwipeDirection direction, DateTime createdAt)
     {
@@ -13,6 +18,9 @@ public class Swipe : Entity<string> {
         ToUserId = toUserId;
         Direction = direction;
         CreatedAt = createdAt;
+
+        var @event = GetDomainEventFromSwipe(this);
+        RaiseDomainEvent(@event);
     }
 
     public string FromUserId {get;}
@@ -20,21 +28,22 @@ public class Swipe : Entity<string> {
     public SwipeDirection Direction {get;}
     public DateTime CreatedAt {get;}
 
-    public virtual? User FromUser {get;}
-    public virtual? User ToUser {get;}
+    public virtual User? FromUser {get;}
+    public virtual User? ToUser {get;}
 
-   private static IDomainEvent ToDomainEvent(Swipe swipe)
+   
+    private IDomainEvent GetDomainEventFromSwipe(Swipe swipe)
     {
         return swipe.Direction switch
         {
-            SwipeDirection.Right => new UserLikedDomainEvent(
-                SwipeId: swipe.Id,
+            SwipeDirection.Pass => new UserLikedDomainEvent(
+                SwipeId: swipe.Id!,
                 FromUserId: swipe.FromUserId,
                 ToUserId: swipe.ToUserId
             ),
 
-            SwipeDirection.Left => new UserPassedDomainEvent(
-                SwipeId: swipe.Id,
+            SwipeDirection.Like => new UserPassedDomainEvent(
+                SwipeId: swipe.Id!,
                 FromUserId: swipe.FromUserId,
                 ToUserId: swipe.ToUserId
             ),
@@ -44,11 +53,16 @@ public class Swipe : Entity<string> {
     }
 
 
-    public Result<Swipe> CreateNew(string fromUserId, string toUserId, SwipeDirection direction) 
+    public Result<Swipe> CreateNew(
+        string fromUserId, 
+        string toUserId, 
+        SwipeDirection direction, 
+        DateTime createdAt
+    ) 
     {
         if (fromUserId == toUserId) 
         {
-            return Result.Fialure<Swipe>(SwipeErrors.CannotSwipeSelf);
+            return Result.Failure<Swipe>(SwipeErrors.CannotSwipeSelf);
         }
 
         if (!Enum.IsDefined(typeof(SwipeDirection), direction))
@@ -57,15 +71,11 @@ public class Swipe : Entity<string> {
         }
 
         var swipe = new Swipe(
-            FromUserId: fromUserId,
-            ToUserId: toUserId,
-            Direction: direction,
-            CreatedAt: DateTime.UtcNow
+            fromUserId,
+            toUserId,
+            direction,
+            DateTime.UtcNow
         );
-
-        var @event = ToDomainEvent(swipe);
-        
-        RaiseDomainEvent(@event);
 
         return Result.Success(swipe);
     }
