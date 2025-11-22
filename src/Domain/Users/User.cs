@@ -87,28 +87,28 @@ public class User : Entity<string>
     )
     {
 
-        if (attractions.Count < 1 && interests.Count > 3)
+        if (attractions.Count < 1 || interests.Count > 3)
         {
             return Result.Failure<User>(
                 UserErrors.InvalidAttractionsCount(attractions.Count)
             );
         }
 
-        if (interests.Count < 1 && interests.Count > 10)
+        if (interests.Count < 1 || interests.Count > 10)
         {
             return Result.Failure<User>(
                 UserErrors.InvalidInterestsCount(interests.Count)
              );
         }
 
-        if (orientations.Count < 1 && interests.Count > 3)
+        if (orientations.Count < 1 || interests.Count > 3)
         {
             return Result.Failure<User>(
                UserErrors.InvalidOrientationsCount(orientations.Count)
             );
         }
 
-        if (photoUrls.Count < 1 && photoUrls.Count > 9)
+        if (photoUrls.Count < 1 || photoUrls.Count > 9)
         {
             return Result.Failure<User>(
                UserErrors.InvalidPhotoUrlsCount(photoUrls.Count)
@@ -141,21 +141,21 @@ public class User : Entity<string>
     {
 
 
-        if (attractions.Count < 1 && interests.Count > 3)
+        if (attractions.Count < 1 || interests.Count > 3)
         {
             return Result.Failure<User>(
                 UserErrors.InvalidAttractionsCount(attractions.Count)
             );
         }
 
-        if (interests.Count < 1 && interests.Count > 10)
+        if (interests.Count < 1 || interests.Count > 10)
         {
             return Result.Failure<User>(
                 UserErrors.InvalidInterestsCount(interests.Count)
              );
         }
 
-        if (photoUrls.Count < 1 && photoUrls.Count > 9)
+        if (photoUrls.Count < 1 || photoUrls.Count > 9)
         {
             return Result.Failure<User>(
                UserErrors.InvalidPhotoUrlsCount(photoUrls.Count)

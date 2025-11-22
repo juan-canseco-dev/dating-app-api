@@ -40,5 +40,6 @@ public class UserFlag
         ReviewerComment = comment;
         ReviewedAt = reviewedAt;
         Status = status;
+        IsReviewed = true;
     }
 }
