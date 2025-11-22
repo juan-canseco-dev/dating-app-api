@@ -36,13 +36,13 @@ public class Swipe : Entity<string> {
     {
         return swipe.Direction switch
         {
-            SwipeDirection.Pass => new UserLikedDomainEvent(
+            SwipeDirection.Like => new UserLikedDomainEvent(
                 SwipeId: swipe.Id!,
                 FromUserId: swipe.FromUserId,
                 ToUserId: swipe.ToUserId
             ),
 
-            SwipeDirection.Like => new UserPassedDomainEvent(
+            SwipeDirection.Pass => new UserPassedDomainEvent(
                 SwipeId: swipe.Id!,
                 FromUserId: swipe.FromUserId,
                 ToUserId: swipe.ToUserId
@@ -53,7 +53,7 @@ public class Swipe : Entity<string> {
     }
 
 
-    public Result<Swipe> CreateNew(
+    public static Result<Swipe> CreateNew(
         string fromUserId, 
         string toUserId, 
         SwipeDirection direction, 
