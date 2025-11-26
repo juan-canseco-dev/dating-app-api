@@ -6,4 +6,7 @@ public record UserPassedDomainEvent(
     string SwipeId,
     string FromUserId,
     string ToUserId
-) : IDomainEvent;
+) : IDomainEvent
+{
+    public DomainEventDeliveryMode DeliveryMode => DomainEventDeliveryMode.Delayed;
+}

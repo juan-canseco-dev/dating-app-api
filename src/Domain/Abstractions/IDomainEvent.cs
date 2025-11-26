@@ -2,4 +2,7 @@
 
 namespace DatingApp.Domain.Abstractions;
 
-public interface IDomainEvent : INotification { }
+public interface IDomainEvent : INotification 
+{
+    DomainEventDeliveryMode DeliveryMode { get; }
+}

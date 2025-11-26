@@ -2,4 +2,7 @@
 
 namespace DatingApp.Domain.Users.Events;
 
-public sealed record UserConfirmedDomainEvent(string UserId) : IDomainEvent;
+public sealed record UserConfirmedDomainEvent(string UserId) : IDomainEvent
+{
+    public DomainEventDeliveryMode DeliveryMode => DomainEventDeliveryMode.Delayed;
+}

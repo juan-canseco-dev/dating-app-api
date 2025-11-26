@@ -4,4 +4,7 @@ using DatingApp.Domain.Abstractions;
 
 namespace DatingApp.Domain.Users.Events;
 
-public sealed record UserProfileChangedDomainEvent(string UserId) : IDomainEvent;
+public sealed record UserProfileChangedDomainEvent(string UserId) : IDomainEvent
+{
+    public DomainEventDeliveryMode DeliveryMode => DomainEventDeliveryMode.Delayed;
+}

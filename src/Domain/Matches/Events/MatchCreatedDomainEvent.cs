@@ -7,4 +7,7 @@ public sealed record MatchCreatedDomainEvent(
     string MatchId,
     string PartnerOneId,
     string PartnerTwoId
-) : IDomainEvent;
+) : IDomainEvent
+{
+    public DomainEventDeliveryMode DeliveryMode => DomainEventDeliveryMode.Delayed;
+}

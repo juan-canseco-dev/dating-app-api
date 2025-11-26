@@ -3,4 +3,7 @@ using MediatR;
 
 namespace DatingApp.Domain.Users.Events;
 
-public sealed record UserSuspendedDomainEvent(string UserId) : IDomainEvent;
+public sealed record UserSuspendedDomainEvent(string UserId) : IDomainEvent
+{
+    public DomainEventDeliveryMode DeliveryMode => DomainEventDeliveryMode.Delayed;
+}
