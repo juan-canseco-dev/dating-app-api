@@ -1,9 +1,6 @@
-﻿
-using DatingApp.Domain.Abstractions;
+﻿namespace DatingApp.Domain.Users;
 
-namespace DatingApp.Domain.Users;
-
-public class UserBlock : Entity<string>
+public class UserBlock
 {
     
     private UserBlock() {}
@@ -14,6 +11,7 @@ public class UserBlock : Entity<string>
         BlockedAt = blockedAt;
     }
 
+    public string Id { get; } = default!;
     public string? BlockedUserId { get; }
     public virtual User? BlockedUser { get; }
     public DateTime BlockedAt { get; }
