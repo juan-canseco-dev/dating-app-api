@@ -27,7 +27,6 @@ public class UserTests
     private const string DisplayName = "John";
     private const string Description = "Hello world";
 
-
     // -----------------------------
     // CREATE NEW USER
     // -----------------------------
@@ -365,4 +364,86 @@ public class UserTests
 
         Assert.True(result.IsFailure);
     }
+
+    [Fact]
+    public void GoOnline_Should_Succeed_When_NotAlreadyOnline()
+    {
+        var user = CreateValidUser();
+        var updatedAt = DateTime.UtcNow;
+        var result = user.GoOnline(updatedAt);
+        Assert.True(result.IsSuccess);
+        Assert.Equal(PresenceStatus.Online, user.Presence.Status);
+        Assert.Equal(updatedAt, user.Presence.LastActivity);
+        Assert.Contains(user.GetDomainEvents(), e => e is UserWentOnlineDomainEvent);
+    }
+
+    [Fact]
+    public void GoOnline_Should_Fail_When_AlreadyOnline()
+    {
+        var updatedAt = DateTime.UtcNow;
+        var user = CreateValidUser();
+        user.GoOnline(updatedAt);
+        user.ClearDomainEvents();
+        user.GoOnline(updatedAt);
+        var result = user.GoOnline(updatedAt);
+        Assert.True(result.IsFailure);
+        Assert.Equal(UserErrors.AlreadyOnline(user.Id!), result.Error);  // Adjust if Error has Message property
+        Assert.Equal(PresenceStatus.Online, user.Presence.Status);  // Unchanged
+        Assert.DoesNotContain(user.GetDomainEvents(), e => e is UserWentOnlineDomainEvent);
+    }
+
+    [Fact]
+    public void GoOffline_Should_Succeed_When_NotAlreadyOffline()
+    {
+        var updatedAt = DateTime.UtcNow;
+        var user = CreateValidUser();
+        user.GoOnline(updatedAt);
+        user.ClearDomainEvents();
+        var result = user.GoOffline(updatedAt);
+        Assert.True(result.IsSuccess);
+        Assert.Equal(PresenceStatus.Offline, user.Presence.Status);
+        Assert.Equal(updatedAt, user.Presence.LastActivity);
+        Assert.Contains(user.GetDomainEvents(), e => e is UserWentOfflineDomainEvent);
+    }
+    [Fact]
+    public void GoOffline_Should_Fail_When_AlreadyOffline()
+    {
+        var updatedAt = DateTime.UtcNow;
+        var user = CreateValidUser();
+        user.GoOffline(updatedAt);
+        user.ClearDomainEvents();
+        var result = user.GoOffline(updatedAt);
+        Assert.True(result.IsFailure);
+        Assert.Equal(UserErrors.AlreadyOffline(user.Id!), result.Error);
+        Assert.Equal(PresenceStatus.Offline, user.Presence.Status);  // Unchanged
+        Assert.DoesNotContain(user.GetDomainEvents(), e => e is UserWentOfflineDomainEvent);
+    }
+
+    [Fact]
+    public void GoAway_Should_Succeed_When_NotAlreadyAway()
+    {
+        var user = CreateValidUser();
+        var updatedAt = DateTime.UtcNow;
+        var result = user.GoAway(updatedAt);
+        Assert.True(result.IsSuccess);
+        Assert.Equal(PresenceStatus.Away, user.Presence.Status);
+        Assert.Equal(updatedAt, user.Presence.LastActivity);
+        Assert.Contains(user.GetDomainEvents(), e => e is UserWentAwayDomainEvent);
+    }
+
+    [Fact]
+    public void GoAway_Should_Fail_When_AlreadyAway()
+    {
+        var updatedAt = DateTime.UtcNow;
+        var user = CreateValidUser();
+        user.GoAway(updatedAt);
+        user.ClearDomainEvents();
+
+        var result = user.GoAway(updatedAt);
+        Assert.True(result.IsFailure);
+        Assert.Equal(UserErrors.AlreadyAway(user.Id!), result.Error);
+        Assert.Equal(PresenceStatus.Away, user.Presence.Status);  // Unchanged
+        Assert.DoesNotContain(user.GetDomainEvents(), e => e is UserWentAwayDomainEvent);
+    }
+
 }
