@@ -86,4 +86,12 @@ public static class UserErrors
     public static Error NotBlocked(string userId) =>
         new("User.NotBlocked", $"User {userId} is not blocked.", Error.Type.Domain);
 
+    public static Error AlreadyOnline(string userId) => 
+        new("User.AlreadyOnline", $"User {userId} is already marked as online.", Error.Type.Domain);
+
+    public static Error AlreadyOffline(string userId) => 
+        new("User.AlreadyOffline", $"User {userId} is already marked as offline.", Error.Type.Domain);
+
+    public static Error AlreadyAway(string userId) => 
+        new("User.AlreadyAway", $"User {userId} is already marked as away.", Error.Type.Domain);
 }

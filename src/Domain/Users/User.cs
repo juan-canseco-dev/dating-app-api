@@ -2,7 +2,6 @@
 using DatingApp.Domain.Interests;
 using DatingApp.Domain.Orientations;
 using DatingApp.Domain.Users.Events;
-using System.Linq;
 
 namespace DatingApp.Domain.Users;
 
@@ -23,6 +22,7 @@ public class User : Entity<string>
         DisplayName = default!;
         PhotoUrl = default!;
         Description = default!;
+        Presence = default!;
     }
 
     private User(
@@ -51,6 +51,7 @@ public class User : Entity<string>
         _interests.AddRange(interests);
         _photoUrls.AddRange(photoUrls);
         RaiseDomainEvent(new UserCreatedDomainEvent(Id));
+        Presence = new Presence(PresenceStatus.Offline, DateTime.UtcNow);
     }
 
     public string Email { get; }
@@ -72,6 +73,7 @@ public class User : Entity<string>
     public DateTime ConfirmedAt { get; }
     public DateTime UpdatedAt { get; }
     public bool Suspended { get; private set; } = false;
+    public Presence Presence { get; private set; }
 
     public static Result<User> CreateNew(
         string id,
@@ -271,5 +273,37 @@ public class User : Entity<string>
         return Result.Success();
     }
 
+    public Result GoOnline(DateTime updatedAt)
+    {
+        if (Presence.Status == PresenceStatus.Online)
+        {
+            return Result.Failure(UserErrors.AlreadyOnline(Id!));
+        }
 
+        Presence  = new Presence(PresenceStatus.Online, updatedAt);
+        RaiseDomainEvent(new UserWentOnlineDomainEvent(Id!, updatedAt));
+        return Result.Success();
+    }
+
+    public Result GoOffline(DateTime updatedAt)
+    {
+        if (Presence.Status == PresenceStatus.Offline)
+        {
+            return Result.Failure(UserErrors.AlreadyOffline(Id!));
+        }
+        Presence = new Presence(PresenceStatus.Offline, updatedAt);
+        RaiseDomainEvent(new UserWentOfflineDomainEvent(Id!, updatedAt));
+        return Result.Success();
+    }
+
+    public Result GoAway(DateTime updatedAt)
+    {
+        if (Presence.Status == PresenceStatus.Away)
+        {
+            return Result.Failure(UserErrors.AlreadyAway(Id!));
+        }
+        Presence = new Presence(PresenceStatus.Away, updatedAt);
+        RaiseDomainEvent(new UserWentAwayDomainEvent(Id!, updatedAt));
+        return Result.Success();
+    }
 }
